@@ -18,44 +18,39 @@ function getThesReq( someWord ) {
     };
 };
 
-function printDomainsForWord( someWord ) {
-    http.get(
-        getDomainrReq( someWord ),
-        function ( res ) {
-            var acc = '';
+function domainrHandler( res ) {
+    var acc = '';
+    
+    res.setEncoding('utf8');
+    
+    res.on( 'data', function ( c ) { acc += c;} );
+    
+    res.on( 'end', function () {
+        var obj = JSON.parse(acc);
+        for (var _i = 0, _len = obj['results'].length; _i < _len; _i++) {
+            var domObj = obj['results'][_i];
+            if (domObj.availability == "available") {
+                console.log( domObj.domain );
+            }
+        }
+    });
+}
 
-            res.setEncoding('utf8');
-
-            res.on( 'data', function ( c ) { acc += c;} );
-
-            res.on( 'end', function () {
-                var obj = JSON.parse(acc);
-                for (var _i = 0, _len = obj['results'].length; _i < _len; _i++) {
-                    var domObj = obj['results'][_i];
-                    if (domObj.availability == "available") {
-                        console.log( domObj.domain );
-                        }
-                    }
-                }
-            );
-        });
-};
-
-function processSynonyms( res ) {
-    var theJSON = '';
+function thesHandler( res ) {
+    var acc = '';
 
     res.setEncoding('utf8');
 
     res.on('data', 
             function ( c ) { 
-                theJSON += c; 
+                acc += c; 
             }
     );
 
     res.on('end', function () {
-        if (theJSON == '') { console.error("no synonyms found for " + process.argv[2]); return; }
+        if (acc == '') { console.error("no synonyms found for " + process.argv[2]); return; }
 
-        var obj = JSON.parse(theJSON);
+        var obj = JSON.parse(acc);
         for (var pos in obj) {
             for (var rel in obj[pos]) {
                 for (var _i = 0, _len = obj[pos][rel].length; _i < _len; _i++) {
@@ -69,11 +64,18 @@ function processSynonyms( res ) {
     });
 };
 
+function printDomainsForWord( someWord ) {
+    http.get(
+        getDomainrReq( someWord ),
+        domainrHandler
+    );
+};
+
 function getDomains( someWord ) {
     printDomainsForWord( someWord );
     http.get(
         getThesReq( someWord ),
-        processSynonyms
+        thesHandler
     );
 }
 
