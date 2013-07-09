@@ -6,7 +6,7 @@ function getDomainrReq( someWord ) {
     return {
         host   : "domai.nr",
         port   : 80,
-        path   : "/api/json/search?q=" + someWord
+        path   : "/api/json/search?client_id=domania&q=" + someWord
     };
 };
 
