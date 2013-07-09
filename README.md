@@ -16,3 +16,5 @@ requires node.js, usage:
 	 fortuity.co
 	 fortuity.io
 	 
+Thesaurus service provided by words.bighugelabs.com
+Domains provided by domai.nr
